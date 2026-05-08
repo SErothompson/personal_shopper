@@ -119,6 +119,20 @@ uvicorn app.main:app --reload
 
 Open: http://127.0.0.1:8000
 
+If `uvicorn` is not recognized, run:
+
+```powershell
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --reload
+```
+
+If port 8000 is already in use (`WinError 10013`), run on another port:
+
+```powershell
+uvicorn app.main:app --reload --port 8001
+```
+
+Then open: http://127.0.0.1:8001
+
 ## Run Keep Watch Polling
 
 Requires Redis running locally on `redis://localhost:6379/0` (default).
