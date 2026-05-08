@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="search-shell">
+  <form class="search-form" action="{{ url_for('search') }}" method="get">
+    <label for="q" class="search-label">Find the best price across stores</label>
+    <div class="search-row">
+      <input
+        id="q"
+        name="q"
+        type="text"
+        value="{{ query }}"
+        placeholder="Try: noise cancelling headphones, espresso machine, winter jacket"
+        required
+        minlength="2"
+        maxlength="300"
+        data-search-input
+      >
+      <button type="submit">Search</button>
+    </div>
+  </form>
+</section>
+
+{% if query %}
+<section class="results-header">
+  <div>
+    <p class="eyebrow">Search query</p>
+    <h1>{{ query }}</h1>
+  </div>
+  <p class="result-count">{{ search_results|length }} product offers found</p>
+</section>
+{% endif %}
+
+{% if cheapest_offer %}
+<section class="cheapest-banner">
+  <p class="eyebrow">Cheapest current offer</p>
+  <h2>{{ cheapest_offer.title }}</h2>
+  <p>
+    {{ cheapest_offer.provider_label }}: <strong>${{ "%.2f"|format(cheapest_offer.price) }}</strong>
+  </p>
+  <div class="banner-actions">
+    <a href="{{ url_for('item_detail', offer_id=cheapest_offer.offer_id) }}">Open in app</a>
+    <a href="{{ cheapest_offer.product_url }}" target="_blank" rel="noopener">Go to retailer</a>
+  </div>
+</section>
+{% endif %}
+
+{% if provider_statuses %}
+<section class="provider-status-grid">
+  {% for status in provider_statuses %}
+  <article class="provider-card {% if status.supported %}supported{% else %}coming-soon{% endif %}">
+    <h3>{{ status.label }}</h3>
+    {% if status.supported %}
+    <p>Live</p>
+    {% else %}
+    <p>{{ status.reason or "Coming soon" }}</p>
+    {% endif %}
+  </article>
+  {% endfor %}
+</section>
+{% endif %}
+
+<section class="results-grid">
+  {% for offer in search_results %}
+  <a class="result-tile" href="{{ url_for('item_detail', offer_id=offer.offer_id) }}">
+    <div class="tile-image-wrap">
+      {% if offer.image_url %}
+      <img src="{{ offer.image_url }}" alt="{{ offer.title }}" loading="lazy">
+      {% else %}
+      <div class="image-fallback">No Image</div>
+      {% endif %}
+    </div>
+    <div class="tile-body">
+      <p class="provider-pill">{{ offer.provider_label }}</p>
+      <h3>{{ offer.title }}</h3>
+      <p class="tile-description">{{ offer.description }}</p>
+      <div class="tile-meta">
+        <strong>${{ "%.2f"|format(offer.price) }}</strong>
+        <span>{{ offer.currency }}</span>
+      </div>
+    </div>
+  </a>
+  {% endfor %}
+</section>
+
+{% if query and (search_results|length == 0) %}
+<section class="empty-state">
+  <h2>No offers found yet</h2>
+  <p>
+    Add provider API credentials in your .env file and run the same query again.
+  </p>
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block head_extra %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<section class="detail-hero">
+  <a class="back-link" href="{{ url_for('search') }}?q={{ offer.query | urlencode }}">Back to search</a>
+
+  <article class="detail-card">
+    <div class="detail-media">
+      {% if offer.image_url %}
+      <img src="{{ offer.image_url }}" alt="{{ offer.title }}">
+      {% else %}
+      <div class="image-fallback tall">No Image</div>
+      {% endif %}
+
+      {% if offer.extra_images %}
+      <div class="thumb-row">
+        {% for image in offer.extra_images %}
+        <img src="{{ image }}" alt="Additional image {{ loop.index }}" loading="lazy">
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="detail-content">
+      <p class="provider-pill">{{ offer.provider_label }}</p>
+      <h1>{{ offer.title }}</h1>
+      <p class="detail-description">{{ offer.description }}</p>
+
+      <div class="detail-price">
+        <span>Current price</span>
+        <strong>${{ "%.2f"|format(offer.price) }} {{ offer.currency }}</strong>
+      </div>
+
+      <div class="detail-actions">
+        <a class="button-link" href="{{ offer.product_url }}" target="_blank" rel="noopener">Open retailer page</a>
+        <form action="{{ url_for('toggle_watch', offer_id=offer.offer_id) }}" method="post">
+          <button type="submit">{% if is_watching %}Stop watching{% else %}Keep watch{% endif %}</button>
+        </form>
+      </div>
+    </div>
+  </article>
+</section>
+
+<section class="chart-section">
+  <div class="chart-header">
+    <h2>Price history</h2>
+    <div class="chart-range-controls">
+      <button class="timeline-button active" type="button" data-range="30">30D</button>
+      <button class="timeline-button" type="button" data-range="90">90D</button>
+      <button class="timeline-button" type="button" data-range="365">365D</button>
+    </div>
+  </div>
+  <canvas id="priceChart" height="120"></canvas>
+  <script id="chartPoints" type="application/json">{{ chart_points_json | safe }}</script>
+</section>
+{% endblock %}

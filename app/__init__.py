@@ -1,0 +1,1 @@
+"""Personal Shopper Assistant package."""
